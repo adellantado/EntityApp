@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+               xmlns:s="library://ns.adobe.com/flex/spark"
+               creationComplete="addRandomItem()">
+    <fx:Script><![CDATA[
+        import mx.collections.ArrayCollection;
+        import mx.events.DragEvent;
+        import mx.managers.DragManager;
+
+        public static const AREA_WIDTH:int = 400;
+        public static const AREA_HEIGHT:int = 400;
+
+        [Bindable]
+        [ArrayElementType("Entity")]
+        public var entities:ArrayCollection = new ArrayCollection();
+
+
+        public function addRandomItem():void {
+            var entity:Entity = new Entity(
+                    Math.random() * (AREA_WIDTH - EntityShape.SIZE),
+                    Math.random() * (AREA_HEIGHT - EntityShape.SIZE)
+            );
+            entities.addItem(entity);
+
+            var shape:EntityShape = new EntityShape(entity);
+            area.addElement(shape);
+        }
+
+        private function listLabelFunction(entity:Entity):String {
+            return "x: " + entity.x + ", y: " + entity.y;
+        }
+
+        private function dragEnterHandler(event:DragEvent):void {
+            if (event.dragSource.hasFormat("shape")) {
+                DragManager.acceptDragDrop(BorderContainer(event.currentTarget));
+            }
+        }
+
+        private function dragDropHandler(event:DragEvent):void {
+            event.dragInitiator.x =
+                    BorderContainer(event.currentTarget).mouseX;
+            event.dragInitiator.y =
+                    BorderContainer(event.currentTarget).mouseY;
+        }
+        ]]></fx:Script>
+
+    <s:layout>
+        <s:HorizontalLayout
+                paddingBottom="20"
+                paddingTop="20"
+                paddingLeft="20"
+                paddingRight="20"/>
+    </s:layout>
+
+    <s:List dataProvider="{entities}"
+            height="{AREA_HEIGHT}"
+            labelFunction="listLabelFunction"/>
+
+    <s:BorderContainer id="area"
+                       width="{AREA_WIDTH}"
+                       height="{AREA_HEIGHT}"
+                       borderWeight="1"
+                       dragEnter="dragEnterHandler(event)"
+                       dragDrop="dragDropHandler(event)"/>
+
+    <s:Button label="add" click="addRandomItem()"/>
+
+</s:Application>
